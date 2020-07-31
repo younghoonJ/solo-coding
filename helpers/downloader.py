@@ -21,19 +21,30 @@ class UrlDownloader:
     def __init__(self, file_info, to_dir, n_workers=None):
         self.file_info = file_info
         self.to_dir = to_dir
-        self.n_workers = n_workers
+        if n_workers is None:
+            self.n_workers = cpu_count()
+        else:
+            self.n_workers = n_workers
+        self.pool = Pool(processes=self.n_workers)
 
     def download_files(self):
         if not os.path.isdir(self.to_dir):
             os.makedirs(self.to_dir)
         targets = [(i.url, f'{self.to_dir}/{i.file_name}')
                    for i in self.file_info]
-        if self.n_workers is None:
-            self.n_workers = cpu_count()
-        try:
-            with Pool(processes=self.n_workers) as p:
-                it = p.imap(download_file, targets)
-                for _ in it:
-                    pass
-        except Exception as e:
-            print('Exception occures.',  e)
+
+        it = self.pool.imap(download_file, targets)
+        for _ in it:
+            pass
+        print('Job finished.')
+        self.pool.close()
+        self.pool.join()
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, type, value, traceback):
+        self.pool.terminate()
+        self.pool.join()
+        import sys
+        sys.exit(-1)
