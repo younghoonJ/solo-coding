@@ -1,1 +1,3 @@
-Solo coding repository.
+# Solo coding repository.
+## Coding practice.
+## Utility codes.
