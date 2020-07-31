@@ -8,7 +8,7 @@ import abc
 def download_file(url_path):
     url, path = url_path
     try:
-        print('Download from ', url)
+        print(f'Download from {url} to {path}')
         urlretrieve(url, path)
     except Exception as e:
         print('Terminate child process. ', e)
